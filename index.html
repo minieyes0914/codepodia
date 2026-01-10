@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>動物方程式：警校程式特訓</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Babel for JSX and TypeScript support in browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      /* Custom scrollbar - Increased width for better accessibility */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f8fafc;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 5px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+      @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .animate-fade-in {
+        animation: fade-in 0.3s ease-in-out;
+      }
+      /* Radar pulse animation for level 3 */
+      @keyframes pulse-ring {
+        0% { transform: scale(0.33); opacity: 0.8; }
+        80%, 100% { transform: scale(1.5); opacity: 0; }
+      }
+      .radar-pulse {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        background: rgba(239, 68, 68, 0.4);
+        border-radius: 50%;
+      }
+      .radar-pulse::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 2px solid #ef4444;
+        border-radius: 50%;
+        animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+      }
+    </style>
+    <script type="importmap">
+    {
+      "imports": {
+        "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+        "react-dom/client": "https://esm.sh/react-dom@^19.2.3/client",
+        "react-dom": "https://esm.sh/react-dom@^19.2.3",
+        "react": "https://esm.sh/react@^19.2.3"
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel" data-type="module" data-presets="typescript,react">
+      import React, { useState, useEffect } from 'react';
+      import ReactDOM from 'react-dom/client';
+      import { Play, RotateCcw, Volume2, Move, MousePointer, MessageCircle, Layers, Image as ImageIcon, Star, Trophy, AlertCircle, ArrowRight, Lightbulb, Calculator, BookOpen, CornerDownRight, User, RotateCw, Flag, Map, MapPin } from 'lucide-react';
+
+      // --- Types ---
+      type BlockType = 'event' | 'motion' | 'control' | 'looks' | 'sound' | 'sensing' | 'variable' | 'operator';
+
+      interface BlockData {
+        id: string;
+        text: string;
+        type: BlockType;
+      }
+
+      interface LevelData {
+        id: number;
+        title: string;
+        description: string;
+        hint: string;
+        explanation: string;
+        concept: string[];
+        availableBlocks: BlockData[];
+        solution: string[]; 
+        initialScore: number;
+      }
+
+      // --- Data ---
+      const LEVELS: LevelData[] = [
+        {
+          id: 1,
+          title: "第一關：警校報到",
+          description: "哈囉！我是茱蒂(Judy)。今天是第一天到動物方程式警局報到！請幫我向蠻牛局長大聲報告「茱蒂警官，報到！」。",
+          hint: "程式都需要一個起點，找找看黃色的「當綠旗被點擊」，接著接上紫色的說話積木。",
+          explanation: "程式執行需要一個觸發事件。我們使用「當綠旗被點擊」作為開關，接著放入「說出...」積木，這樣一按下執行，茱蒂就會馬上說話囉！",
+          concept: ["事件(Event)", "基本腳本"],
+          initialScore: 10,
+          availableBlocks: [
+            { id: 'flag', text: '當 ⚑ 被點擊', type: 'event' },
+            { id: 'move10', text: '移動 10 點', type: 'motion' },
+            { id: 'say_start', text: '說出「茱蒂警官，報到！」持續2秒', type: 'looks' },
+            { id: 'wait_1', text: '等待 1 秒', type: 'control' },
+            { id: 'turn15', text: '右轉 15 度', type: 'motion' }
+          ],
+          solution: ['flag', 'say_start']
+        },
+        {
+          id: 2,
+          title: "第二關：市中心集合",
+          description: "接獲通報！我們需要立刻前往市中心廣場(座標 0, 0)與尼克會合。請幫我設定導航，讓警車瞬間移動到正確位置。",
+          hint: "地圖的正中央座標是 X=0, Y=0。試著用藍色的動作積木直接定位過去。",
+          explanation: "在數位世界的座標中，中心點就是 x:0, y:0。使用「定位到 x:0 y:0」積木，就能不管警車原本在哪裡，精準地把它傳送到地圖正中央。",
+          concept: ["座標(X,Y)", "定位"],
+          initialScore: 10,
+          availableBlocks: [
+            { id: 'flag', text: '當 ⚑ 被點擊', type: 'event' },
+            { id: 'goto_random', text: '定位到 隨機位置', type: 'motion' },
+            { id: 'goto_0_0', text: '定位到 x:0 y:0', type: 'motion' },
+            { id: 'change_x', text: 'x 改變 10', type: 'motion' },
+            { id: 'change_y', text: 'y 改變 10', type: 'motion' },
+            { id: 'say_pos', text: '說出「抵達廣場」', type: 'looks' }
+          ],
+          solution: ['flag', 'goto_0_0']
+        },
+        {
+          id: 3,
+          title: "第三關：動態巡邏",
+          description: "開始執行巡邏任務！請駕駛巡邏車，讓它能夠「持續不斷」地跟隨指揮中心發出的『導航訊號』移動，巡視城市的每個角落。",
+          hint: "導航訊號會跟隨你的操作（鼠標）。要讓車子「一直」跟著訊號移動，你需要用橘色的「重複無限次」積木把動作包起來。",
+          explanation: "我們使用『面朝鼠標』指令來模擬導航系統。在 Scratch 中，這能讓角色追蹤滑鼠或手指的位置，讓茱蒂警官精準地跟隨你的導航引導前進。",
+          concept: ["迴圈(Loop)", "動態追蹤 (面朝鼠標)"],
+          initialScore: 10,
+          availableBlocks: [
+            { id: 'flag', text: '當 ⚑ 被點擊', type: 'event' },
+            { id: 'forever', text: '重複無限次', type: 'control' },
+            { id: 'point_mouse', text: '面朝 [鼠標] 向', type: 'motion' },
+            { id: 'move_steps', text: '移動 5 點', type: 'motion' },
+            { id: 'wait_1', text: '等待 1 秒', type: 'control' },
+            { id: 'bounce', text: '碰到邊緣就反彈', type: 'motion' },
+            { id: 'turn_15', text: '右轉 15 度', type: 'motion' }
+          ],
+          solution: ['flag', 'forever', 'point_mouse', 'move_steps']
+        },
+        {
+          id: 4,
+          title: "第四關：追捕威斯頓",
+          description: "發現偷走洋蔥頭的小偷威斯頓！如果抓到他(碰到他)，請大喊「站住！」，並立刻廣播通知警網支援。",
+          hint: "先檢查是否「碰到威斯頓」(偵測)，如果碰到了，依序執行：說話 -> 廣播 -> 顯示逮捕畫面(切換背景)。",
+          explanation: "這是標準的「碰撞偵測」。我們把「如果...那麼」放在無限迴圈裡，隨時檢查是否抓到小偷。一旦條件成立，就會執行逮捕流程！",
+          concept: ["偵測(Sensing)", "廣播", "條件判斷"],
+          initialScore: 10,
+          availableBlocks: [
+            { id: 'flag', text: '當 ⚑ 被點擊', type: 'event' },
+            { id: 'forever', text: '重複無限次', type: 'control' },
+            { id: 'if_touching', text: '如果 <碰到 威斯頓 > 那麼', type: 'control' },
+            { id: 'say_stop', text: '說出「站住！」持續2秒', type: 'looks' },
+            { id: 'broadcast', text: '廣播訊息「逮捕」', type: 'event' },
+            { id: 'switch_bg', text: '背景換成「警局牢房」', type: 'looks' },
+            { id: 'wait_1', text: '等待 1 秒', type: 'control' },
+            { id: 'turn_15', text: '右轉 15 度', type: 'motion' }
+          ],
+          solution: ['flag', 'forever', 'if_touching', 'say_stop', 'broadcast', 'switch_bg']
+        },
+        {
+          id: 5,
+          title: "第五關：蒐集證據",
+          description: "尼克發現了關於午夜嚎叫的線索(爪子冰棒)！請幫忙蒐集。記得先將證據歸零。每當碰到冰棒時，發出「啵」的聲音，並讓證據數量 +1。",
+          hint: "這是「變數」的應用。一開始記得先「變數設為0」。當偵測到線索時，使用橘紅色的變數積木讓數值增加，別忘了加上音效！",
+          explanation: "變數就像一個計分板。當我們偵測到碰到冰棒時，同時執行「播放音效」和「變數改變 1」，這樣就能紀錄我們蒐集了多少證據。",
+          concept: ["變數(Variable)", "計分機制"],
+          initialScore: 10,
+          availableBlocks: [
+            { id: 'flag', text: '當 ⚑ 被點擊', type: 'event' },
+            { id: 'forever', text: '重複無限次', type: 'control' },
+            { id: 'if_touching_item', text: '如果 <碰到 爪子冰棒 > 那麼', type: 'control' },
+            { id: 'change_score', text: '變數 [證據] 改變 1', type: 'variable' },
+            { id: 'play_sound', text: '播放音效「啵」', type: 'sound' },
+            { id: 'set_score', text: '變數 [證據] 設為 0', type: 'variable' },
+            { id: 'hide', text: '隱藏', type: 'looks' }
+          ],
+          solution: ['flag', 'set_score', 'forever', 'if_touching_item', 'play_sound', 'change_score']
+        },
+        {
+          id: 6,
+          title: "第六關：城界巡邏",
+          description: "我們正在巡邏雨林區邊界。請幫我定位到邊界 (200,0) 並播放警告聲提醒路人，接著設定自動巡邏規則：讓警車持續移動，且如果碰到邊緣就自動反彈，確保安全。",
+          hint: "先設定初始位置和聲音(那是原本的錯誤狀態)，接著在無限迴圈裡讓車子移動，並加上「碰到邊緣就反彈」。",
+          explanation: "為了不讓警車開出地圖，Scratch 提供了一個很好用的積木「碰到邊緣就反彈」。把它放在移動積木後面，就能確保茱蒂永遠在管轄範圍內！",
+          concept: ["動作", "邊界偵測"],
+          initialScore: 10,
+          availableBlocks: [
+            { id: 'flag', text: '當 ⚑ 被點擊', type: 'event' },
+            { id: 'goto_edge', text: '定位到 x:200 y:0', type: 'motion' },
+            { id: 'play_ouch', text: '播放音效「警告聲」直到結束', type: 'sound' },
+            { id: 'forever', text: '重複無限次', type: 'control' },
+            { id: 'move_10', text: '移動 10 點', type: 'motion' },
+            { id: 'bounce', text: '碰到邊緣就反彈', type: 'motion' },
+            { id: 'set_x_0', text: 'x 設為 0', type: 'motion' },
+            { id: 'say_ouch', text: '說出「哎呀!」', type: 'looks' }
+          ],
+          solution: ['flag', 'goto_edge', 'play_ouch', 'forever', 'move_10', 'bounce']
+        },
+        {
+          id: 7,
+          title: "第七關：最佳拍檔",
+          description: "茱蒂和尼克分工合作！茱蒂負責追趕壞人(持續移動)，尼克負責用無線電呼叫支援(持續播放聲音)。請讓這兩件事同時發生！",
+          hint: "如果要讓兩件事「同時」發生，我們需要兩個「頭」（綠旗）來分別指揮茱蒂和尼克。",
+          explanation: "這就是「平行處理」！就像茱蒂在跑的時候，尼克同時在說話。在程式裡，我們可以寫好幾個「當綠旗被點擊」的腳本，它們會同時一起執行。",
+          concept: ["平行處理", "多腳本"],
+          initialScore: 10,
+          availableBlocks: [
+            { id: 'flag', text: '當 ⚑ 被點擊', type: 'event' },
+            { id: 'forever', text: '重複無限次', type: 'control' },
+            { id: 'move_10', text: '移動 10 點', type: 'motion' },
+            { id: 'play_radar', text: '播放音效「無線電」直到結束', type: 'sound' },
+            { id: 'wait_1', text: '等待 1 秒', type: 'control' },
+            { id: 'turn_15', text: '右轉 15 度', type: 'motion' }
+          ],
+          solution: ['flag', 'forever', 'move_10', 'flag', 'forever', 'play_radar']
+        },
+        {
+          id: 8,
+          title: "第八關：潛入行動",
+          description: "我們要悄悄接近B老大的豪華禮車。不能太快！請控制警車花 2 秒鐘的時間，慢慢「滑行」到指定座標 (x:0, y:-100)，到達後等待一秒回報。",
+          hint: "「定位」是瞬間移動，會被發現！請用「滑行」慢慢靠近。到達後記得先「等待」一下再說話。",
+          explanation: "「滑行」積木可以控制移動的時間，創造平滑的移動效果，適合用來做過場動畫 or 潛入任務。等待積木則用來控制節奏。",
+          concept: ["滑行(Glide)", "座標移動", "等待"],
+          initialScore: 10,
+          availableBlocks: [
+            { id: 'flag', text: '當 ⚑ 被點擊', type: 'event' },
+            { id: 'glide', text: '在 2 秒內滑行到 x:0 y:-100', type: 'motion' },
+            { id: 'wait_1', text: '等待 1 秒', type: 'control' },
+            { id: 'say_success', text: '說出「就位完畢」', type: 'looks' },
+            { id: 'goto', text: '定位到 x:0 y:-100', type: 'motion' },
+            { id: 'change_y', text: 'y 改變 -10', type: 'motion' }
+          ],
+          solution: ['flag', 'glide', 'wait_1', 'say_success']
+        },
+        {
+          id: 9,
+          title: "第九關：地鐵危機",
+          description: "地鐵失控了！現在車廂到處亂跑(隨機定位)，請幫忙設定緊急煞車系統：一旦車廂碰到「障礙物」，就要立刻停止所有程式運作。",
+          hint: "「隨機位置」積木要放在「重複無限次」迴圈裡面，車子才會持續移動喔！隨時檢查「如果」碰到障礙物，「那麼」就執行停止指令。",
+          explanation: "緊急停止按鈕很重要！把「如果碰到...那麼停止全部」放在迴圈裡，程式就會不斷監控安全。一旦發生碰撞，立刻終止所有動作。",
+          concept: ["條件判斷(If...Then)", "停止程式"],
+          initialScore: 10,
+          availableBlocks: [
+            { id: 'flag', text: '當 ⚑ 被點擊', type: 'event' },
+            { id: 'forever', text: '重複無限次', type: 'control' },
+            { id: 'goto_random', text: '定位到 隨機位置', type: 'motion' },
+            { id: 'if_touching_base', text: '如果 <碰到 障礙物 > 那麼', type: 'control' },
+            { id: 'stop_all', text: '停止 [全部]', type: 'control' },
+            { id: 'move_10', text: '移動 10 點', type: 'motion' },
+            { id: 'repeat_until', text: '重複直到 <...>', type: 'control' }
+          ],
+          solution: ['flag', 'forever', 'goto_random', 'if_touching_base', 'stop_all']
+        },
+        {
+          id: 10,
+          title: "第十關：志羚姐姐演唱會",
+          description: "案件破獲！全城都在慶祝。請幫志羚姐姐舉辦演唱會：一邊播放主題曲「Try Everything」，一邊讓她變換 10 次舞步造型，喘口氣(等待)後，最後大喊「Zootopia Forever!」。",
+          hint: "跳舞和音樂要分開進行！造型變換使用「重複 10 次」，變換完 10 次後，記得加入一個等待積木讓她休息一下，再喊口號。音樂則在另一個腳本播放。",
+          explanation: "為了讓「喊口號」發生在跳舞結束後，我們使用有限次數的迴圈。同時，為了不讓音樂因為動作等待而中斷，音樂必須獨立在另一個平行腳本中執行。",
+          concept: ["綜合應用", "平行處理", "有限迴圈"],
+          initialScore: 10,
+          availableBlocks: [
+            { id: 'flag', text: '當 ⚑ 被點擊', type: 'event' },
+            { id: 'forever', text: '重複無限次', type: 'control' },
+            { id: 'repeat_10', text: '重複 10 次', type: 'control' },
+            { id: 'next_costume', text: '造型換成 下一個', type: 'looks' },
+            { id: 'play_music', text: '播放音效「Try Everything」直到結束', type: 'sound' },
+            { id: 'wait_05', text: '等待 0.5 秒', type: 'control' },
+            { id: 'wait_1', text: '等待 1 秒', type: 'control' },
+            { id: 'say_ya', text: '說出「Zootopia Forever!」持續2秒', type: 'looks' },
+            { id: 'turn_15', text: '右轉 15 度', type: 'motion' }
+          ],
+          solution: ['flag', 'forever', 'play_music', 'flag', 'repeat_10', 'next_costume', 'wait_05', 'wait_1', 'say_ya']
+        }
+      ];
+
+      // --- Helper Functions ---
+
+      const isContainerBlock = (blockId) => {
+        return ['forever', 'if_touching', 'if_touching_item', 'if_touching_base', 'repeat_until', 'repeat_10'].includes(blockId);
+      };
+
+      const isHatBlock = (blockId) => {
+        return ['flag', 'key_space'].includes(blockId);
+      };
+
+      function shuffleArray(array) {
+        const newArray = [...array];
+        for (let i = newArray.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+        }
+        return newArray;
+      }
+
+      const splitIntoScripts = (ids) => {
+        const scripts = [];
+        let currentScript = [];
+        for (const id of ids) {
+          if (isHatBlock(id) && currentScript.length > 0) {
+            scripts.push(currentScript);
+            currentScript = [];
+          }
+          currentScript.push(id);
+        }
+        if (currentScript.length > 0) scripts.push(currentScript);
+        return scripts;
+      };
+
+      const areScriptsEqual = (s1, s2) => {
+        if (s1.length !== s2.length) return false;
+        return s1.every((val, index) => val === s2[index]);
+      };
+
+      const playSoundEffect = (type) => {
+        try {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContext) return;
+          const ctx = new AudioContext();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          const now = ctx.currentTime;
+          if (type === 'pop') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(400, now);
+            osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            osc.start(now);
+            osc.stop(now + 0.1);
+          }
+        } catch (e) {
+          console.error("Audio play failed", e);
+        }
+      };
+
+      // --- Components ---
+
+      const Block = ({ block, onClick, isSelected, isContainer = false }) => {
+        const getColors = (type) => {
+          switch (type) {
+            case 'event': return 'bg-yellow-400 border-yellow-600 text-yellow-900';
+            case 'motion': return 'bg-blue-500 border-blue-700 text-white';
+            case 'control': return 'bg-orange-400 border-orange-600 text-white';
+            case 'looks': return 'bg-purple-500 border-purple-700 text-white';
+            case 'sound': return 'bg-pink-500 border-pink-700 text-white';
+            case 'sensing': return 'bg-cyan-500 border-cyan-700 text-white';
+            case 'variable': return 'bg-orange-500 border-orange-700 text-white';
+            case 'operator': return 'bg-green-500 border-green-700 text-white';
+            default: return 'bg-gray-400';
+          }
+        };
+        const baseClasses = `${getColors(block.type)} px-3 py-2 rounded-md cursor-pointer shadow-sm border-l-4 font-medium text-sm select-none transition-transform active:scale-95 ${isSelected ? 'opacity-50' : 'hover:brightness-110'} flex items-center gap-2 relative z-10`;
+        const containerClasses = isContainer ? 'rounded-b-none mb-0' : 'mb-2';
+        return (
+          <div className="relative">
+            <div onClick={onClick} className={`${baseClasses} ${containerClasses}`}>
+              {block.type === 'event' && <Play size={14} />}
+              {block.type === 'motion' && <Move size={14} />}
+              {block.type === 'control' && <RotateCcw size={14} />}
+              {block.type === 'looks' && <ImageIcon size={14} />}
+              {block.type === 'sound' && <Volume2 size={14} />}
+              {block.type === 'sensing' && <MousePointer size={14} />}
+              {block.type === 'variable' && <Calculator size={14} />}
+              {block.type === 'operator' && <Calculator size={14} />}
+              {block.text}
+              {isContainer && <CornerDownRight size={16} className="ml-auto opacity-50" />}
+            </div>
+          </div>
+        );
+      };
+
+      // --- Main App ---
+
+      function App() {
+        const [currentLevelIdx, setCurrentLevelIdx] = useState(0);
+        const [scriptArea, setScriptArea] = useState([]);
+        const [totalScore, setTotalScore] = useState(0);
+        const [gameState, setGameState] = useState('intro');
+        const [feedback, setFeedback] = useState("");
+        const [showAnimation, setShowAnimation] = useState(false);
+        const [showHint, setShowHint] = useState(false); 
+        const [attempts, setAttempts] = useState(0);
+        const [isLevelFailed, setIsLevelFailed] = useState(false);
+        const [shuffledBlocks, setShuffledBlocks] = useState([]);
+        const [costumeFrame, setCostumeFrame] = useState(0);
+        const [playerName, setPlayerName] = useState("");
+        const [autoMousePos, setAutoMousePos] = useState({ x: 50, y: 50 });
+        const [rotation, setRotation] = useState(0);
+
+        const currentLevel = LEVELS[currentLevelIdx];
+        
+        // 判斷此關卡是否為多個腳本組合而成
+        const isMultiScriptLevel = currentLevel.solution.filter(id => isHatBlock(id)).length > 1;
+
+        useEffect(() => {
+          setShuffledBlocks(shuffleArray(currentLevel.availableBlocks));
+        }, [currentLevelIdx, currentLevel.availableBlocks]);
+
+        useEffect(() => {
+          if (currentLevel.id === 10 && showAnimation) {
+            const interval = setInterval(() => {
+              setCostumeFrame(prev => prev + 1);
+            }, 500); 
+            return () => clearInterval(interval);
+          }
+        }, [currentLevel.id, showAnimation]);
+
+        useEffect(() => {
+          if (currentLevel.id === 3 && showAnimation) {
+            let angle = 0;
+            const interval = setInterval(() => {
+              angle += 0.05;
+              const x = 50 + 35 * Math.cos(angle);
+              const y = 50 + 35 * Math.sin(angle);
+              const rot = (angle * 180 / Math.PI) + 90 + 90; 
+              setAutoMousePos({ x, y });
+              setRotation(rot);
+            }, 20);
+            return () => clearInterval(interval);
+          }
+        }, [currentLevel.id, showAnimation]);
+
+        const addToScript = (block) => {
+          if (gameState !== 'playing') return;
+          setScriptArea([...scriptArea, block]);
+        };
+
+        const removeFromScript = (index) => {
+          if (gameState !== 'playing') return;
+          const newScript = [...scriptArea];
+          newScript.splice(index, 1);
+          setScriptArea(newScript);
+        };
+
+        const clearScript = () => {
+          if (gameState === 'success') return;
+          setScriptArea([]);
+        };
+
+        const checkAnswer = () => {
+          const userIds = scriptArea.map(b => b.id);
+          const solutionIds = currentLevel.solution;
+          const userScripts = splitIntoScripts(userIds);
+          const solutionScripts = splitIntoScripts(solutionIds);
+          let isCorrect = true;
+          if (userScripts.length !== solutionScripts.length) {
+            isCorrect = false;
+          } else {
+            const remainingSolutions = [...solutionScripts];
+            for (const uScript of userScripts) {
+              const matchIndex = remainingSolutions.findIndex(sScript => areScriptsEqual(uScript, sScript));
+              if (matchIndex === -1) {
+                isCorrect = false;
+                break;
+              } else {
+                remainingSolutions.splice(matchIndex, 1);
+              }
+            }
+          }
+          if (isCorrect) {
+            setGameState('success');
+            setShowAnimation(true);
+            if (currentLevel.id === 5) playSoundEffect('pop');
+            if (!isLevelFailed) {
+              setFeedback("程式執行成功！導航系統正常運作！(獲得 10 分)");
+              setTotalScore(prev => prev + 10);
+            } else {
+              setFeedback("程式執行成功。 (因已公佈答案，本關不予加分)");
+            }
+          } else {
+            const newAttempts = attempts + 1;
+            setAttempts(newAttempts);
+            if (newAttempts >= 3) {
+              setIsLevelFailed(true);
+              setFeedback("已嘗試錯誤 3 次。蠻牛局長把正確的程式順序給你了（本關不加分）。");
+              const solutionBlocks = currentLevel.solution.map(id => 
+                currentLevel.availableBlocks.find(b => b.id === id)
+              ).filter(Boolean);
+              setScriptArea(solutionBlocks);
+              setGameState('success');
+              setShowAnimation(true);
+            } else {
+              setFeedback(`程式內容或內部順序有誤！請再試一次。(剩餘嘗試：${3 - newAttempts})`);
+            }
+          }
+        };
+
+        const nextLevel = () => {
+          if (currentLevelIdx < LEVELS.length - 1) {
+            setCurrentLevelIdx(prev => prev + 1);
+            setScriptArea([]);
+            setGameState('playing');
+            setFeedback("");
+            setShowAnimation(false);
+            setShowHint(false);
+            setAttempts(0);
+            setIsLevelFailed(false);
+          } else {
+            setGameState('complete');
+          }
+        };
+
+        const startGame = () => {
+          setGameState('playing');
+          setCurrentLevelIdx(0);
+          setTotalScore(0);
+          setScriptArea([]);
+          setFeedback("");
+          setShowHint(false);
+          setAttempts(0);
+          setIsLevelFailed(false);
+        };
+
+        const getRenderedScript = () => {
+          let currentIndent = 0;
+          return scriptArea.map((block) => {
+            if (isHatBlock(block.id)) currentIndent = 0;
+            const isContainer = isContainerBlock(block.id);
+            const renderData = { ...block, indentLevel: currentIndent, isContainer };
+            if (isContainer) currentIndent += 1;
+            return renderData;
+          });
+        };
+
+        const renderedScript = getRenderedScript();
+
+        const renderGameStage = () => {
+          let bgClass = "bg-gradient-to-b from-sky-300 to-sky-100";
+          if (currentLevel.id === 4 && !showAnimation) bgClass = "bg-gradient-to-b from-slate-800 to-slate-900";
+          if (currentLevel.id === 4 && showAnimation) bgClass = "bg-slate-800";
+          if (currentLevel.id === 8) bgClass = "bg-gradient-to-b from-slate-800 to-slate-900";
+          if (currentLevel.id === 6) bgClass = "bg-[url('https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=600&auto=format&fit=crop')] bg-cover bg-center";
+
+          return (
+            <div className={`w-full h-full ${bgClass} relative overflow-hidden flex items-center justify-center border-4 border-slate-700 transition-all duration-1000 ${showAnimation ? 'border-green-400' : ''}`}>
+              {currentLevel.id === 4 && showAnimation && (
+                  <div className="absolute inset-0 pointer-events-none z-20" style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 40px, #334155 40px, #334155 50px)' }}></div>
+              )}
+              {currentLevel.id !== 6 && !(currentLevel.id === 4 && showAnimation) && (
+                  <div className="absolute bottom-0 w-full h-1/3 opacity-30 z-0 pointer-events-none flex items-end">
+                      {[...Array(8)].map((_, i) => (<div key={i} className="bg-slate-900 mx-1" style={{ height: `${Math.random() * 80 + 20}%`, width: '12%', }}></div>))}
+                  </div>
+              )}
+              {currentLevel.id === 8 && (<div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-48 h-32 bg-cyan-100 rounded-full blur-xl opacity-50 z-0"></div>)}
+              {currentLevel.id === 6 && (
+                  <div className="absolute inset-0 pointer-events-none overflow-hidden z-20">
+                      <div className="absolute -top-10 -left-10 text-8xl text-green-900 opacity-60 -rotate-45 drop-shadow-lg">🌿</div>
+                      <div className="absolute -bottom-10 -right-10 text-8xl text-green-900 opacity-60 rotate-12 drop-shadow-lg">🌿</div>
+                  </div>
+              )}
+              <div className={`relative z-10 flex flex-col items-center transition-all duration-700 w-full h-full justify-center ${showAnimation ? 'scale-110' : 'scale-100'}`}>
+                {currentLevel.id === 1 && (<>
+                     <div className={`text-7xl mb-2 ${showAnimation ? 'animate-bounce' : ''}`}>🐰</div>
+                     {showAnimation && (<div className="bg-white border-2 border-slate-200 text-slate-800 px-4 py-2 rounded-2xl rounded-bl-none text-sm font-bold shadow-lg animate-fade-in relative -right-12 -top-20">茱蒂警官，報到！</div>)}
+                  </>)}
+                {currentLevel.id === 2 && (<div className={`text-6xl transition-all duration-1000 relative ${showAnimation ? 'translate-x-0 translate-y-0' : 'translate-x-20 translate-y-12'}`}>
+                     🚓
+                     <div className="absolute -top-8 left-0 text-xs text-blue-600 font-mono bg-white/80 px-1 rounded">{showAnimation ? 'x:0 y:0' : 'x:120 y:80'}</div>
+                     <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-2 border-dashed border-red-500 rounded-full opacity-30 pointer-events-none ${showAnimation ? 'scale-0 opacity-0' : 'scale-100'}`}></div>
+                </div>)}
+                {currentLevel.id === 3 && (<div className="relative w-full h-full flex items-center justify-center">
+                      <div className={`text-5xl absolute transition-all duration-75 ease-linear z-10`} style={showAnimation ? { left: `${autoMousePos.x}%`, top: `${autoMousePos.y}%`, transform: `translate(-50%, -50%) rotate(${rotation}deg)` } : {}}>🚓</div>
+                      {showAnimation && (
+                        <div className="absolute z-20 transition-all duration-75 ease-linear pointer-events-none" style={{ left: `${autoMousePos.x}%`, top: `${autoMousePos.y}%`, transform: 'translate(-50%, -50%)' }}>
+                            <div className="radar-pulse"></div>
+                            <MapPin className="text-red-500 drop-shadow-lg relative z-10" size={28} fill="currentColor" />
+                         </div>
+                      )}
+                </div>)}
+                {currentLevel.id === 4 && (<div className="flex gap-24 items-center relative w-full justify-between px-8">
+                      <div className={`text-7xl transition-transform duration-1000 ${showAnimation ? 'translate-x-32 relative z-50' : ''}`}>
+                          🐰{showAnimation && (<div className="absolute -top-12 left-0 bg-blue-600 text-white px-3 py-1 rounded-xl text-sm font-bold whitespace-nowrap animate-bounce z-50 shadow-lg">站住！</div>)}
+                      </div>
+                      <div className={`text-6xl relative transition-all duration-500 ${showAnimation ? 'scale-75 translate-y-4' : ''}`}>
+                          🦦{!showAnimation && <span className="absolute bottom-0 -right-2 text-2xl">🧅</span>}
+                          {showAnimation && <span className="absolute -left-4 bottom-0 text-4xl">🔗</span>}
+                          {showAnimation && (<div className="absolute -top-8 left-1/2 -translate-x-1/2 pointer-events-none z-30">
+                                  <div className="text-red-600 font-black text-2xl border-4 border-red-600 p-1 transform -rotate-12 opacity-100 animate-pulse whitespace-nowrap bg-white/80 backdrop-blur-sm">ARRESTED</div>
+                              </div>)}
+                      </div>
+                </div>)}
+                {currentLevel.id === 5 && (<div className="relative mt-20 mr-20"> 
+                      <div className={`text-7xl ${showAnimation ? 'animate-pulse' : ''}`}>🐰</div>
+                      <div className="absolute top-4 -right-12 text-5xl animate-bounce delay-75">🍭</div>
+                      {showAnimation && (<div className="absolute -top-12 -right-20 flex flex-col gap-1 items-center z-50 w-max">
+                           <div className="text-pink-500 font-bold text-lg animate-bounce drop-shadow-sm bg-white/50 px-2 rounded-full backdrop-blur-sm border border-pink-200">啵！</div>
+                           <div className="bg-orange-500 text-white px-2 py-0.5 rounded-full font-bold shadow-lg text-xs">證據 +1</div>
+                      </div>)}
+                </div>)}
+                {currentLevel.id === 6 && (<div className="w-full h-full relative flex items-center justify-center">
+                      {showAnimation && (<div className="absolute inset-0 flex items-center justify-center z-0"><div className="text-white/80 font-bold text-5xl border-4 border-white/50 p-4 rounded-xl opacity-50 transform -rotate-6">SAFE ZONE</div></div>)}
+                      <div className={`text-6xl absolute transition-all duration-1000 ${showAnimation ? 'right-[40%] scale-x-[-1]' : 'right-0'}`} style={{zIndex: 10}}>🚓</div>
+                      <div className="absolute right-0 top-0 h-full w-8 bg-yellow-400 flex flex-col items-center justify-center border-l-4 border-black/20 shadow-xl z-20"><div className="text-[10px] font-black tracking-widest -rotate-90 whitespace-nowrap opacity-50 text-yellow-900">BOUNDARY</div></div>
+                      {!showAnimation && (<>
+                           <div className="absolute top-1/2 right-16 -translate-y-1/2 text-red-500 font-bold animate-ping text-xl z-20 shadow-white drop-shadow-md">警告!</div>
+                           <div className="absolute top-1/2 right-32 -translate-y-14 text-xs text-slate-900 bg-white/90 px-2 py-1 rounded font-mono border border-slate-300">x:200 y:0</div>
+                      </>)}
+                </div>)}
+                {currentLevel.id === 7 && (<div className="flex flex-col items-center gap-6 w-full justify-center pr-24"> 
+                    <div className="flex gap-8 items-end">
+                        <div className="text-7xl relative">🐰{showAnimation && <div className="absolute bottom-0 -right-4 text-3xl animate-pulse">💨</div>}</div>
+                        <div className="text-7xl relative">
+                          🦊
+                          {showAnimation && (
+                            <div className="absolute top-2 left-full ml-4 w-max bg-slate-800 text-green-400 p-2 rounded-lg text-xs font-mono animate-pulse z-50 shadow-lg border border-slate-600">
+                              📡 呼叫支援...
+                              <div className="absolute top-1/2 -left-[6px] -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[6px] border-r-slate-800"></div>
+                            </div>
+                          )}
+                        </div>
+                    </div>
+                    {showAnimation && <div className="text-sm font-bold text-blue-600 bg-white px-3 py-1 rounded-full shadow">最佳拍檔模式：啟動</div>}
+                </div>)}
+                {currentLevel.id === 8 && (<div className="relative w-full h-full overflow-hidden">
+                      <div className="absolute top-2 left-1/2 -translate-x-1/2 text-5xl z-10 drop-shadow-lg">🐭<span className="text-xs absolute -bottom-4 left-1/2 -translate-x-1/2 w-max text-center font-bold text-white bg-black/50 rounded px-2 py-0.5">Mr. Big</span></div>
+                      <div className={`absolute left-1/2 -translate-x-1/2 text-6xl transition-all duration-[2000ms] ease-in-out ${showAnimation ? 'top-20' : 'bottom-2'}`} style={{zIndex: 20}}>
+                        🚓{showAnimation && (<div className="absolute -top-12 -left-8 bg-white text-black px-2 py-1 rounded-lg text-xs font-bold whitespace-nowrap animate-bounce delay-1000 shadow-lg">就位完畢</div>)}
+                      </div>
+                </div>)}
+                {currentLevel.id === 9 && (<div className="w-full h-full relative flex items-center justify-center">
+                      <div className={`text-6xl absolute transition-all duration-2000 ease-linear ${showAnimation ? 'translate-x-12 translate-y-12' : '-translate-x-20 -translate-y-16'}`} style={{zIndex: 10}}>🚋</div>
+                      <div className="text-6xl absolute translate-x-12 translate-y-12" style={{zIndex: 1}}>🚧</div>
+                      {showAnimation && <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl text-white font-black bg-red-600 px-6 py-2 rounded shadow-2xl animate-pulse transform rotate-12 z-20">STOP!</div>}
+                </div>)}
+                {currentLevel.id === 10 && (<div className="w-full h-full relative flex flex-col items-center justify-center overflow-hidden bg-slate-900">
+                      <div className="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-transparent to-transparent z-0"></div>
+                      {showAnimation && (<><div className="absolute top-0 left-1/4 w-24 h-full bg-yellow-400/20 rotate-12 blur-xl origin-top animate-pulse z-0"></div><div className="absolute top-0 right-1/4 w-24 h-full bg-blue-400/20 -rotate-12 blur-xl origin-top animate-pulse delay-75 z-0"></div></>)}
+                      <div className={`relative z-10 flex flex-col items-center justify-center transition-all duration-300 ${showAnimation ? 'scale-125' : 'scale-100'}`}>
+                         <div className={`text-9xl relative z-20 ${showAnimation ? 'animate-bounce' : ''}`}>
+                           🦌{showAnimation && (<div className="absolute -top-4 left-1/2 -translate-x-1/2 text-5xl drop-shadow-md transition-all duration-300">{['🕶️', '👒', '👑', '🎩', '🎧', '⭐', '🎀', '👓', '勞', '🌹'][costumeFrame % 10]}</div>)}
+                         </div>
+                         <div className={`absolute top-1/2 -right-8 text-4xl z-30 -translate-y-1/2 ${showAnimation ? 'animate-pulse' : ''}`}>🎤</div>
+                      </div>
+                      {showAnimation && (<>
+                          <div className="absolute top-6 w-full text-center z-50">
+                              <div className="text-yellow-300 text-2xl md:text-3xl font-black drop-shadow-[0_0_10px_rgba(234,179,8,0.8)] animate-pulse">♫ Try Everything ♫</div>
+                          </div>
+                          <div className="absolute bottom-6 w-full text-center z-50">
+                              <span className="bg-white/90 text-purple-700 text-sm font-bold px-4 py-2 rounded-full inline-block shadow-xl animate-bounce border-2 border-purple-200">Zootopia Forever!</span>
+                          </div>
+                      </>)}
+                </div>)}
+              </div>
+              {!showAnimation && gameState === 'playing' && (<div className="absolute bottom-2 right-2 text-white/70 text-xs font-mono bg-black/20 px-2 rounded uppercase">Waiting...</div>)}
+            </div>
+          );
+        };
+
+        if (gameState === 'intro') {
+          return (
+            <div className="min-h-screen bg-[url('https://files.catbox.moe/p7beln.jpg')] bg-cover bg-center text-slate-900 flex flex-col items-center justify-center p-4 font-sans overflow-y-auto relative">
+              <div className="max-w-xl w-full bg-black/30 backdrop-blur-sm rounded-3xl shadow-2xl p-8 flex flex-col items-center relative z-10 text-center space-y-6 border border-white/20">
+                <div className="flex items-center gap-4"><span className="text-6xl animate-bounce">🐰</span><span className="text-6xl animate-bounce delay-100">🦊</span></div>
+                <h1 className="text-5xl font-black text-white tracking-wider drop-shadow-md leading-tight pb-2">動物方程式<br/><span className="text-4xl">警校程式特訓</span></h1>
+                <p className="text-lg text-white leading-relaxed font-bold drop-shadow-md">歡迎來到 <b>動物方程式 警局</b>！<br/>我是<b>茱蒂</b>，我們需要你的幫助來解決城市裡的棘手案件。<br/>這裡共有 10 個任務，<br/><b>只有最聰明的程式警官才能完成挑戰！</b></p>
+                <div className="flex flex-col gap-3 items-center w-full mt-2">
+                  <div className="relative w-full"><User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-700" size={20}/><input type="text" placeholder="請輸入警員代號 (名字)" value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="w-full pl-12 pr-6 py-4 rounded-xl bg-white/80 border-2 border-white/50 text-slate-900 text-lg focus:outline-none focus:border-blue-800 focus:ring-2 focus:ring-blue-800/20 transition-all placeholder-slate-600 font-bold backdrop-blur-sm shadow-inner" /></div>
+                  <button onClick={startGame} disabled={!playerName.trim()} className={`w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white text-xl font-black py-4 px-12 rounded-xl shadow-lg flex items-center justify-center gap-3 border border-white/20 ${!playerName.trim() ? 'opacity-50 cursor-not-allowed grayscale' : 'hover:brightness-110 transform transition hover:scale-[1.02] active:scale-95'}`}><Play fill="currentColor" /> 開始執勤</button>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        if (gameState === 'complete') {
+          const isSuccess = totalScore >= 60;
+          return (
+            <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4 overflow-y-auto">
+              <div className="text-center space-y-6 animate-fade-in max-w-2xl w-full">
+                <div className="relative h-64 w-full bg-slate-800 rounded-2xl overflow-hidden border-4 border-slate-700 mb-6 flex items-center justify-center">{isSuccess ? (<img src="https://files.catbox.moe/3ps5aa.jpg" alt="Mission Success" className="w-full h-full object-cover" />) : (<img src="https://files.catbox.moe/nrv2yz.jpg" alt="Mission Failed" className="w-full h-full object-cover" />)}</div>
+                <h2 className="text-4xl font-bold text-white">{isSuccess ? "案件破獲！榮耀時刻" : "任務失敗..."}</h2>
+                <div className="bg-white/10 p-8 rounded-2xl backdrop-blur-sm border border-white/20">
+                  <div className="text-xl mb-2 flex items-center justify-center gap-2"><User size={20} className="text-yellow-400"/>警員：<span className="font-bold text-yellow-400">{playerName || "未具名"}</span></div>
+                  <div className="text-gray-400 mb-4 text-sm uppercase tracking-widest">Performance Review</div>
+                  <div className={`text-6xl font-black ${isSuccess ? 'text-green-400' : 'text-red-400'} font-mono`}>{totalScore} <span className="text-2xl text-white">/ 100</span></div>
+                  <p className="mt-6 text-lg text-slate-200">{isSuccess ? "太棒了！蠻牛局長對你的表現刮目看，動物方程式恢復了和平！🚓✨" : "糟糕！分數不足。你需要重新回到警校受訓了... 📚"}</p>
+                </div>
+                <button onClick={startGame} className="mt-8 px-8 py-3 bg-white text-slate-900 rounded-full font-bold hover:bg-slate-200 transition-colors flex items-center gap-2 mx-auto"><RotateCw size={18}/> 重新挑戰</button>
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 md:overflow-hidden">
+            <header className="bg-slate-900 text-white p-3 shadow-md flex justify-between items-center sticky top-0 z-50 shrink-0 border-b-4 border-blue-500">
+              <div className="flex items-center gap-3"><div className="bg-blue-600 p-2 rounded-lg shadow-inner border border-blue-400"><Star fill="currentColor" className="text-yellow-300" size={20}/></div><div><h1 className="text-lg font-bold tracking-wide">動物方程式：警校特訓</h1><div className="text-xs text-blue-300 flex items-center gap-1"><Map size={10}/> Level {currentLevel.id}: {currentLevel.title}</div></div></div>
+              <div className="flex items-center gap-6"><div className="flex flex-col items-end">{playerName && <span className="text-xs font-bold text-slate-400 uppercase flex items-center gap-1"><User size={10}/> Officer {playerName}</span>}<div className="flex items-baseline gap-2 bg-slate-800 px-3 py-1 rounded-full border border-slate-700"><span className="text-[10px] text-slate-400 uppercase tracking-wider">Score</span><span className="font-bold text-xl text-yellow-400 font-mono">{totalScore}</span></div></div></div>
+            </header>
+            <main className="flex-1 overflow-y-auto md:overflow-hidden p-3 grid grid-cols-12 gap-3 max-w-screen-2xl mx-auto w-full">
+              <div className="col-span-12 md:col-span-3 flex flex-col gap-3 h-auto md:h-full overflow-hidden">
+                <div className="bg-white p-4 rounded-xl shadow-sm border-l-8 border-blue-500 shrink-0 max-h-[300px] md:max-h-[40%] overflow-y-auto">
+                  <div className="flex justify-between items-start mb-2"><h2 className="text-base font-bold text-slate-800 flex items-center gap-2"><AlertCircle size={18} className="text-blue-500"/> 任務簡報</h2><button onClick={() => setShowHint(!showHint)} className="flex items-center gap-1 text-[10px] font-bold bg-yellow-50 text-yellow-700 px-2 py-1 rounded hover:bg-yellow-100 transition border border-yellow-200"><Lightbulb size={12} fill={showHint ? "currentColor" : "none"} />{showHint ? "隱藏提示" : "求救"}</button></div>
+                  <p className="text-slate-600 mb-3 text-sm leading-relaxed">{currentLevel.description}</p>
+                  {showHint && (<div className="mt-2 bg-yellow-50 p-2 rounded text-xs text-yellow-800 border border-yellow-200 animate-fade-in flex gap-2"><span className="shrink-0 mt-0.5">💡</span><span>{currentLevel.hint}</span></div>)}
+                </div>
+                <div className="bg-slate-100 rounded-xl p-3 overflow-y-auto border border-slate-200 flex-1 min-h-[250px] md:min-h-0 flex flex-col shadow-inner">
+                  <h3 className="font-bold text-slate-500 mb-3 flex items-center gap-2 shrink-0 text-sm uppercase tracking-wider"><Layers size={14}/> 指令積木</h3>
+                  <div className="space-y-1.5 flex-1 overflow-y-auto pr-1">{shuffledBlocks.map((block) => (<Block key={block.id} block={block} onClick={() => addToScript(block)} isContainer={isContainerBlock(block.id)} />))}</div>
+                   <div className="text-[10px] text-slate-400 text-center mt-2 pt-2 border-t border-slate-200">點擊積木加入編輯區</div>
+                </div>
+              </div>
+              <div className="col-span-12 md:col-span-5 flex flex-col min-h-[300px] md:h-full overflow-hidden bg-white rounded-xl shadow-sm border border-slate-200 relative">
+                  <div className="flex justify-between items-center p-3 border-b border-slate-100 shrink-0 bg-slate-50"><h3 className="font-bold text-slate-700 flex items-center gap-2 text-sm"><ImageIcon size={16} className="text-slate-400"/> 程式編輯區</h3><button onClick={clearScript} className="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 rounded hover:bg-red-50 disabled:opacity-30 disabled:hover:text-red-500 transition-colors" disabled={gameState === 'success'}><RotateCw size={12} className="inline mr-1"/>重置</button></div>
+                  <div className="flex-1 p-4 overflow-y-auto bg-[url('https://www.transparenttextures.com/patterns/graphy.png')] bg-slate-50 min-h-[200px]">
+                     {scriptArea.length === 0 ? (<div className="h-full flex flex-col items-center justify-center text-slate-300"><div className="w-16 h-16 border-4 border-dashed border-slate-200 rounded-lg flex items-center justify-center mb-2"><Move size={32} className="opacity-50" /></div><p className="text-xs font-bold uppercase tracking-wide">Area Empty</p></div>) : (
+                       <div className="space-y-0 pb-10">{renderedScript.map((block, index) => (<div key={`${block.id}-${index}`} className="relative group">
+                             {isHatBlock(block.id) && index > 0 && isMultiScriptLevel && (
+                               <div className="h-8 border-b-2 border-dashed border-slate-300 w-full mb-4 mt-6 relative opacity-50">
+                                 <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-slate-50 px-2 text-[10px] text-slate-400 font-mono">NEW SCRIPT</span>
+                               </div>
+                             )}
+                             {block.indentLevel > 0 && (<div className="absolute top-0 bottom-0 border-l-4 border-slate-300 opacity-30 z-0" style={{ left: `${(block.indentLevel * 16) - 10}px` }}></div>)}
+                             <div style={{ marginLeft: `${block.indentLevel * 16}px` }}><Block block={block} onClick={() => {}} isSelected={false} isContainer={block.isContainer} /></div>
+                             {gameState === 'playing' && (<button onClick={() => removeFromScript(index)} className="absolute right-2 top-2 text-slate-400 opacity-0 group-hover:opacity-100 hover:text-red-500 hover:scale-110 font-bold bg-white rounded-full w-5 h-5 flex items-center justify-center shadow-md z-20 transition-all">×</button>)}
+                             {index < scriptArea.length - 1 && !block.isContainer && !isHatBlock(scriptArea[index+1].id) && (<div className="h-1 w-3 bg-gray-300 ml-4 -mt-1 mb-0 rounded-b-sm opacity-50" style={{ marginLeft: `${(block.indentLevel * 16) + 16}px` }}></div>)}
+                           </div>))}</div>)}
+                  </div>
+              </div>
+              <div className="col-span-12 md:col-span-4 flex flex-col gap-3 h-auto md:h-full overflow-visible md:overflow-hidden">
+                <div className="bg-slate-800 rounded-xl shadow-lg border-[3px] border-slate-700 shrink-0 h-auto md:h-[50%] flex flex-col relative overflow-hidden group">
+                   <div className="absolute top-2 left-2 z-20 bg-black/60 backdrop-blur-sm px-2 py-1 rounded text-[10px] text-white flex items-center gap-1 font-mono border border-white/10"><Flag size={10} className="text-green-400"/> LIVE PREVIEW</div>
+                   <div className="h-[300px] md:flex-1 relative bg-black">{renderGameStage()}</div>
+                   <div className="bg-slate-800 p-3 flex justify-center shrink-0 border-t border-slate-700">
+                      <button onClick={checkAnswer} disabled={scriptArea.length === 0 || gameState === 'success'} className={`w-full py-3 md:py-2.5 rounded-lg font-bold flex items-center justify-center gap-2 transition-all text-sm uppercase tracking-wide ${gameState === 'success' ? 'bg-green-600 text-white cursor-default' : 'bg-green-500 hover:bg-green-400 text-white shadow-lg shadow-green-900/50 active:translate-y-0.5'} disabled:opacity-50 disabled:cursor-not-allowed`}><Play size={16} fill="currentColor" /> {gameState === 'success' ? '執行完畢' : '執行 (Run Code)'}</button>
+                   </div>
+                </div>
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden relative min-h-[250px] md:min-h-0">
+                   {!feedback && (<div className="flex-1 flex flex-col items-center justify-center text-slate-300 p-4 text-center"><MessageCircle size={32} className="mb-3 opacity-30"/><p className="text-xs font-bold text-slate-400 uppercase tracking-widest">System Ready</p><p className="text-sm mt-1">等待執行指令...</p></div>)}
+                   {feedback && (<div className={`absolute inset-0 flex flex-col p-4 animate-fade-in ${gameState === 'success' ? 'bg-green-50' : 'bg-red-50'}`}>
+                          <div className="flex items-center gap-3 mb-1 justify-center shrink-0">
+                            {gameState === 'success' ? <Trophy className="text-green-500" size={16}/> : <AlertCircle className="text-red-500" size={16}/>}
+                            <h3 className={`font-black text-lg md:text-xl ${gameState === 'success' ? 'text-green-800' : 'text-red-700'}`}>
+                              {gameState === 'success' ? "MISSION SUCCESS" : "ERROR DETECTED"}
+                            </h3>
+                          </div>
+                          <div className="text-center mb-2 text-sm font-bold text-slate-700 leading-snug">{feedback}</div>
+                          <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 mb-2 min-h-0">
+                            {gameState === 'success' && (
+                              <div className="bg-white p-3 rounded-xl border-2 border-green-200 text-left shadow-sm">
+                                <div className="flex items-center gap-2 font-black text-green-700 mb-1 pb-1 border-b-2 border-green-50 text-xs md:text-sm uppercase tracking-widest">
+                                  <BookOpen size={16}/> Coding Concept
+                                </div>
+                                <div className="leading-relaxed text-slate-800 text-xs md:text-sm font-medium">{currentLevel.explanation}</div>
+                              </div>
+                            )}
+                          </div>
+                          <div className="mt-auto flex justify-center shrink-0 pb-1">
+                            {gameState === 'success' ? (
+                              <button onClick={nextLevel} className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-full font-bold text-sm md:text-base shadow-xl flex items-center gap-2 transition-all hover:scale-105 active:scale-95">
+                                {currentLevelIdx === LEVELS.length - 1 ? "查看成績" : "下一關"} 
+                                {currentLevelIdx === LEVELS.length - 1 ? <Trophy size={16} /> : <ArrowRight size={16} />}
+                              </button>
+                            ) : (
+                              <button onClick={() => setFeedback("")} className="text-slate-600 text-sm md:text-base font-black hover:text-slate-900 uppercase tracking-widest py-3 px-8 hover:bg-slate-100 rounded-full transition-all border-2 border-slate-200">
+                                Try Again
+                              </button>
+                            )}
+                          </div>
+                      </div>)}
+                </div>
+              </div>
+            </main>
+          </div>
+        );
+      }
+
+      const rootElement = document.getElementById('root');
+      if (!rootElement) throw new Error("Could not find root element to mount to");
+      const root = ReactDOM.createRoot(rootElement);
+      root.render(<React.StrictMode><App /></React.StrictMode>);
+    </script>
+  </body>
+</html>
