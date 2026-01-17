@@ -50,6 +50,21 @@
         border-radius: 50%;
         animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
       }
+
+      /* Subtle Tactical HUD Background for Coding Area */
+      .coding-area-bullseye {
+        background-color: #fafbfd;
+        background-image: 
+          /* Very Faint Concentric Circles */
+          radial-gradient(circle at center, transparent 0, transparent 80px, rgba(51, 65, 85, 0.03) 81px, rgba(51, 65, 85, 0.03) 82px, transparent 83px),
+          radial-gradient(circle at center, transparent 0, transparent 160px, rgba(51, 65, 85, 0.03) 161px, rgba(51, 65, 85, 0.03) 162px, transparent 163px),
+          radial-gradient(circle at center, transparent 0, transparent 240px, rgba(51, 65, 85, 0.03) 241px, rgba(51, 65, 85, 0.03) 242px, transparent 243px),
+          radial-gradient(circle at center, transparent 0, transparent 320px, rgba(51, 65, 85, 0.03) 321px, rgba(51, 65, 85, 0.03) 322px, transparent 323px),
+          /* Light Dot Grid */
+          radial-gradient(rgba(51, 65, 85, 0.1) 1px, transparent 1px);
+        background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 24px 24px;
+        background-position: center;
+      }
     </style>
     <script type="importmap">
     {
@@ -96,9 +111,9 @@
         {
           id: 1,
           title: "第一關：警校報到",
-          description: "哈囉！我是茱蒂(Judy)。今天是第一天到動物方程式警局報到！請幫我向蠻牛局長大聲報告「茱蒂警官，報到！」。",
-          hint: "程式都需要一個起點，找找看黃色的「當綠旗被點擊」，接著接上紫色的說話積木。",
-          explanation: "程式執行需要一個觸發事件。我們使用「當綠旗被點擊」作為開關，接著放入「說出...」積木，這樣一按下執行，茱蒂就會馬上說話囉！",
+          description: "新進警員！我是茱蒂警官。今天是你報到的第一天，請先向蠻牛局長展現你的精神，大聲報告你的到來。",
+          hint: "程式都需要一個起點，找找看黃色的「當綠旗被點擊」，接著接上紫色的「說出...」積木。",
+          explanation: "程式執行需要一個觸發事件。我們使用「當綠旗被點擊」作為開關，接著放入「說出...」積木，這樣一按下執行，你就會看到我馬上說話囉！",
           concept: ["事件(Event)", "基本腳本"],
           initialScore: 10,
           availableBlocks: [
@@ -113,8 +128,8 @@
         {
           id: 2,
           title: "第二關：市中心集合",
-          description: "接獲通報！我們需要立刻前往市中心廣場(座標 0, 0)與尼克會合。請幫我設定導航，讓警車瞬間移動到正確位置。",
-          hint: "地圖的正中央座標是 X=0, Y=0。試著用藍色的動作積木直接定位過去。",
+          description: "警員，接獲緊急通報！我們必須立刻前往市中心廣場與尼克會合。請你設定導航系統，讓巡邏車能瞬間抵達指定位置。",
+          hint: "地圖的正中央座標是 X=0, Y=0。試著用藍色的「定位到 x:0 y:0」積木直接傳送過去。",
           explanation: "在數位世界的座標中，中心點就是 x:0, y:0。使用「定位到 x:0 y:0」積木，就能不管警車原本在哪裡，精準地把它傳送到地圖正中央。",
           concept: ["座標(X,Y)", "定位"],
           initialScore: 10,
@@ -131,9 +146,9 @@
         {
           id: 3,
           title: "第三關：動態巡邏",
-          description: "開始執行巡邏任務！請駕駛巡邏車，讓它能夠「持續不斷」地跟隨指揮中心發出的『導航訊號』移動，巡視城市的每個角落。",
-          hint: "導航訊號會跟隨你的操作（鼠標）。要讓車子「一直」跟著訊號移動，你需要用橘色的「重複無限次」積木把動作包起來。",
-          explanation: "我們使用『面朝鼠標』指令來模擬導航系統。在 Scratch 中，這能讓角色追蹤滑鼠或手指的位置，讓茱蒂警官精準地跟隨你的導航引導前進。",
+          description: "警員，開始執行巡邏任務！請你駕駛巡邏車巡視城市的每個角落。指揮中心會發出引導訊號，請你確保警車能緊隨導航訊號前進。",
+          hint: "導航訊號會跟隨你的鼠標。要讓車子持續追蹤，需要使用橘色的「重複無限次」積木包住「面朝鼠標」與「移動」。",
+          explanation: "我們使用『面朝鼠標』指令來模擬導航系統。在 Scratch 中，這能讓角色追蹤滑鼠或手指的位置，讓我能精準地跟隨你的導航引導前進。",
           concept: ["迴圈(Loop)", "動態追蹤 (面朝鼠標)"],
           initialScore: 10,
           availableBlocks: [
@@ -150,8 +165,8 @@
         {
           id: 4,
           title: "第四關：追捕威斯頓",
-          description: "發現偷走洋蔥頭的小偷威斯頓！如果抓到他(碰到他)，請大喊「站住！」，並立刻廣播通知警網支援。",
-          hint: "先檢查是否「碰到威斯頓」(偵測)，如果碰到了，依序執行：說話 -> 廣播 -> 顯示逮捕畫面(切換背景)。",
+          description: "警員，發現偷走洋蔥頭的小偷威斯頓了！我們必須展開攔截。請你在成功逮捕後，對他大喊口號、同步通知全城警網支援，並將他送往大牢。",
+          hint: "使用「如果...那麼」檢查是否「碰到威斯頓」。條件成立後依序執行：說話、廣播訊息，最後更換背景為牢房。",
           explanation: "這是標準的「碰撞偵測」。我們把「如果...那麼」放在無限迴圈裡，隨時檢查是否抓到小偷。一旦條件成立，就會執行逮捕流程！",
           concept: ["偵測(Sensing)", "廣播", "條件判斷"],
           initialScore: 10,
@@ -170,8 +185,8 @@
         {
           id: 5,
           title: "第五關：蒐集證據",
-          description: "尼克發現了關於午夜嚎叫的線索(爪子冰棒)！請幫忙蒐集。記得先將證據歸零。每當碰到冰棒時，發出「啵」的聲音，並讓證據數量 +1。",
-          hint: "這是「變數」的應用。一開始記得先「變數設為0」。當偵測到線索時，使用橘紅色的變數積木讓數值增加，別忘了加上音效！",
+          description: "警員，尼克在現場發現了大量散落的關鍵線索。請你負責記錄蒐集過程：在巡邏前確保記錄器已清除。每當我拾取線索時，系統需發出確認音效並請你即時更新數據。",
+          hint: "這是「變數」的應用。一開始先將變數「設為 0」。在無限迴圈中偵測「碰到爪子冰棒」，則執行播放音效並將變數「改變 1」。",
           explanation: "變數就像一個計分板。當我們偵測到碰到冰棒時，同時執行「播放音效」和「變數改變 1」，這樣就能紀錄我們蒐集了多少證據。",
           concept: ["變數(Variable)", "計分機制"],
           initialScore: 10,
@@ -189,9 +204,9 @@
         {
           id: 6,
           title: "第六關：城界巡邏",
-          description: "我們正在巡邏雨林區邊界。請幫我定位到邊界 (200,0) 並播放警告聲提醒路人，接著設定自動巡邏規則：讓警車持續移動，且如果碰到邊緣就自動反彈，確保安全。",
-          hint: "先設定初始位置和聲音(那是原本的錯誤狀態)，接著在無限迴圈裡讓車子移動，並加上「碰到邊緣就反彈」。",
-          explanation: "為了不讓警車開出地圖，Scratch 提供了一個很好用的積木「碰到邊緣就反彈」。把它放在移動積木後面，就能確保茱蒂永遠在管轄範圍內！",
+          description: "警員，我們正在巡邏雨林區邊界。抵達邊境哨所後請你先對路人發出警報，並設定自動巡邏模式，讓巡邏車能在邊界內持續巡視，且在碰到地區邊緣時能自動轉向。",
+          hint: "先「定位到 x:200 y:0」並播放音效。接著在「重複無限次」裡放入「移動」與「碰到邊緣就反彈」。",
+          explanation: "為了不讓警車開出地圖，Scratch 提供了一個很好用的積木「碰到邊緣就反彈」。把它放在移動積木後面，就能確保我永遠在管轄範圍內！",
           concept: ["動作", "邊界偵測"],
           initialScore: 10,
           availableBlocks: [
@@ -209,9 +224,9 @@
         {
           id: 7,
           title: "第七關：最佳拍檔",
-          description: "茱蒂和尼克分工合作！茱蒂負責追趕壞人(持續移動)，尼克負責用無線電呼叫支援(持續播放聲音)。請讓這兩件事同時發生！",
-          hint: "如果要讓兩件事「同時」發生，我們需要兩個「頭」（綠旗）來分別指揮茱蒂和尼克。",
-          explanation: "這就是「平行處理」！就像茱蒂在跑的時候，尼克同時在說話。在程式裡，我們可以寫好幾個「當綠旗被點擊」的腳本，它們會同時一起執行。",
+          description: "警員，展現默契的時刻到了！請你協助我和尼克同步展開行動：由我負責駕駛警車追捕嫌犯，同時讓尼克在後座操作無線電呼叫支援。",
+          hint: "要讓多個行動「同時」發生，可以建立多個「當綠旗被點擊」的腳本，分別控制移動與播放聲音。",
+          explanation: "這就是「平行處理」！就像我在跑的時候，尼克同時在說話。在程式裡，我們可以寫好幾個「當綠旗被點擊」的腳本，它們會同時一起執行。",
           concept: ["平行處理", "多腳本"],
           initialScore: 10,
           availableBlocks: [
@@ -227,9 +242,9 @@
         {
           id: 8,
           title: "第八關：潛入行動",
-          description: "我們要悄悄接近B老大的豪華禮車。不能太快！請控制警車花 2 秒鐘的時間，慢慢「滑行」到指定座標 (x:0, y:-100)，到達後等待一秒回報。",
-          hint: "「定位」是瞬間移動，會被發現！請用「滑行」慢慢靠近。到達後記得先「等待」一下再說話。",
-          explanation: "「滑行」積木可以控制移動的時間，創造平滑的移動效果，適合用來做過場動畫 or 潛入任務。等待積木則用來控制節奏。",
+          description: "警員，執行秘密潛入行動！為了避免驚動目標，請你讓巡邏車緩慢地移動到指定點，就位後請稍待片刻，確認環境安全後再進行回報。",
+          hint: "使用藍色的「滑行到...」積木設定慢速移動（例如 2 秒），到達後加入「等待 1 秒」再接上說話積木。",
+          explanation: "「滑行」積木可以控制移動的時間，創造平滑的移動效果，適合用來做過場動畫或潛入任務。等待積木則用來控制節奏。",
           concept: ["滑行(Glide)", "座標移動", "等待"],
           initialScore: 10,
           availableBlocks: [
@@ -245,8 +260,8 @@
         {
           id: 9,
           title: "第九關：地鐵危機",
-          description: "地鐵失控了！現在車廂到處亂跑(隨機定位)，請幫忙設定緊急煞車系統：一旦車廂碰到「障礙物」，就要立刻停止所有程式運作。",
-          hint: "「隨機位置」積木要放在「重複無限次」迴圈裡面，車子才會持續移動喔！隨時檢查「如果」碰到障礙物，「那麼」就執行停止指令。",
+          description: "警員，地鐵系統遭到駭客控制，車廂正在軌道上失控狂奔！請你啟動緊急防護協議：一旦偵測到車廂與障礙物發生碰撞，請立即終止所有運行。",
+          hint: "在「重複無限次」中讓車子「定位到隨機位置」，並放入「如果...那麼」判斷是否「碰到障礙物」，若是則執行「停止全部」。",
           explanation: "緊急停止按鈕很重要！把「如果碰到...那麼停止全部」放在迴圈裡，程式就會不斷監控安全。一旦發生碰撞，立刻終止所有動作。",
           concept: ["條件判斷(If...Then)", "停止程式"],
           initialScore: 10,
@@ -264,10 +279,10 @@
         {
           id: 10,
           title: "第十關：志羚姐姐演唱會",
-          description: "案件破獲！全城都在慶祝。請幫志羚姐姐舉辦演唱會：一邊播放主題曲「Try Everything」，一邊讓她變換 10 次舞步造型 (每 0.5 秒換一次)，最後大喊「Zootopia Forever!」。",
-          hint: "跳舞和音樂要分開進行！造型變換使用「重複 10 次」，記得在迴圈裡放「等待」積木，不然動作會太快看不見喔！",
-          explanation: "為了讓「喊口號」發生在跳舞結束後，我們使用有限次數的迴圈。同時，為了不讓音樂因為動作等待而中斷，音樂必須獨立在另一個平行腳本中執行。",
-          concept: ["綜合應用", "平行處理", "有限迴圈"],
+          description: "案件完美破獲，全城都在慶祝！志羚姐姐準備舉辦一場盛大的演出。警員，請你幫忙完成兩件事：首先，請讓歡快的樂曲全程播送不停歇；接著，請指導她展現一段最耀眼的舞蹈動作，並在一段舞蹈全部完成時，大聲喊出口號來向大家致意！",
+          hint: "使用兩個平行腳本（兩面綠旗）。一個負責「重複無限次」播放音樂，另一個則先用「重複 10 次」包住「下一個造型」與「等待」，最後才接上「說出」積木。",
+          explanation: "為了讓「口號」發生在跳舞結束後，口號積木必須接在「重複 10 次」迴圈的下方。而為了讓音樂不被舞蹈的「等待」積木卡住，音樂必須放在另一個獨立的綠旗腳本中同步執行。",
+          concept: ["綜合應用", "平行處理", "序列邏輯"],
           initialScore: 10,
           availableBlocks: [
             { id: 'flag', text: '當 ⚑ 被點擊', type: 'event' },
@@ -276,7 +291,7 @@
             { id: 'next_costume', text: '造型換成 下一個', type: 'looks' },
             { id: 'play_music', text: '播放音效「Try Everything」直到結束', type: 'sound' },
             { id: 'wait_05', text: '等待 0.5 秒', type: 'control' },
-            { id: 'say_ya', text: '說出「Zootopia Forever!」持續2秒', type: 'looks' },
+            { id: 'say_ya', text: '說出「Codepodia Forever!」持續2秒', type: 'looks' },
             { id: 'turn_15', text: '右轉 15 度', type: 'motion' }
           ],
           solution: ['flag', 'forever', 'play_music', 'flag', 'repeat_10', 'next_costume', 'wait_05', 'say_ya']
@@ -474,10 +489,10 @@
             setShowAnimation(true);
             if (currentLevel.id === 5) playSoundEffect('pop');
             if (!isLevelFailed) {
-              setFeedback("程式執行成功！導航系統正常運作！(獲得 10 分)");
+              setFeedback("程式執行成功！(獲得 10 分)");
               setTotalScore(prev => prev + 10);
             } else {
-              setFeedback("程式執行成功。 (因已公佈答案，本關不予加分)");
+              setFeedback("程式執行成功。");
             }
           } else {
             const newAttempts = attempts + 1;
@@ -536,6 +551,13 @@
 
         const renderedScript = getRenderedScript();
 
+        // 輔助函式：根據 playerName 調整簡報文字
+        const getDynamicDescription = (desc) => {
+          if (!playerName) return desc;
+          // 將名字加在「警員」前面
+          return desc.replace(/(新進)?警員/g, (match) => `${playerName} ${match}`);
+        };
+
         const renderGameStage = () => {
           let bgClass = "bg-gradient-to-b from-sky-300 to-sky-100";
           if (currentLevel.id === 4 && !showAnimation) bgClass = "bg-gradient-to-b from-slate-800 to-slate-900";
@@ -561,10 +583,18 @@
                   </div>
               )}
               <div className={`relative z-10 flex flex-col items-center transition-all duration-700 w-full h-full justify-center ${showAnimation ? 'scale-110' : 'scale-100'}`}>
-                {currentLevel.id === 1 && (<>
-                     <div className={`text-7xl mb-2 ${showAnimation ? 'animate-bounce' : ''}`}>🐰</div>
-                     {showAnimation && (<div className="bg-white border-2 border-slate-200 text-slate-800 px-4 py-2 rounded-2xl rounded-bl-none text-sm font-bold shadow-lg animate-fade-in relative -right-12 -top-20">茱蒂警官，報到！</div>)}
-                  </>)}
+                {currentLevel.id === 1 && (
+                  <div className="relative flex flex-col items-center">
+                     {showAnimation && (
+                       <div className="absolute -top-16 bg-white border-2 border-slate-200 text-slate-800 px-4 py-2 rounded-2xl text-sm font-bold shadow-lg animate-fade-in z-50 whitespace-nowrap">
+                         茱蒂警官，報到！
+                         {/* Speech Bubble Tail */}
+                         <div className="absolute -bottom-2 left-4 w-4 h-4 bg-white border-r-2 border-b-2 border-slate-200 rotate-45 transform translate-y-[-1px]"></div>
+                       </div>
+                     )}
+                     <div className={`text-7xl ${showAnimation ? 'animate-bounce' : ''}`}>🐰</div>
+                  </div>
+                )}
                 {currentLevel.id === 2 && (<div className={`text-6xl transition-all duration-1000 relative ${showAnimation ? 'translate-x-0 translate-y-0' : 'translate-x-20 translate-y-12'}`}>
                      🚓
                      <div className="absolute -top-8 left-0 text-xs text-blue-600 font-mono bg-white/80 px-1 rounded">{showAnimation ? 'x:0 y:0' : 'x:120 y:80'}</div>
@@ -637,7 +667,7 @@
                       </div>
                       {showAnimation && (<div className="absolute top-10 w-full text-center z-50">
                               <div className="text-yellow-300 text-3xl font-black drop-shadow-[0_0_10px_rgba(234,179,8,0.8)] animate-pulse">♫ Try Everything ♫</div>
-                              <div className="mt-48"><span className="bg-white/90 text-purple-700 text-sm font-bold px-4 py-2 rounded-full inline-block shadow-xl animate-bounce border-2 border-purple-200">Zootopia Forever!</span></div>
+                              <div className="mt-48"><span className="bg-white/90 text-purple-700 text-sm font-bold px-4 py-2 rounded-full inline-block shadow-xl animate-bounce border-2 border-purple-200">Codepodia Forever!</span></div>
                          </div>)}
                 </div>)}
               </div>
@@ -655,7 +685,7 @@
                 <p className="text-lg text-white leading-relaxed font-bold drop-shadow-md">歡迎來到 <b>動物方程式 警局</b>！<br/>我是<b>茱蒂</b>，我們需要你的幫助來解決城市裡的棘手案件。<br/>這裡共有 10 個任務，<br/><b>只有最聰明的程式警官才能完成挑戰！</b></p>
                 <div className="flex flex-col gap-3 items-center w-full mt-2">
                   <div className="relative w-full"><User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-700" size={20}/><input type="text" placeholder="請輸入警員代號 (名字)" value={playerName} onChange={(e) => setPlayerName(e.target.value)} className="w-full pl-12 pr-6 py-4 rounded-xl bg-white/80 border-2 border-white/50 text-slate-900 text-lg focus:outline-none focus:border-blue-800 focus:ring-2 focus:ring-blue-800/20 transition-all placeholder-slate-600 font-bold backdrop-blur-sm shadow-inner" /></div>
-                  <button onClick={startGame} disabled={!playerName.trim()} className={`w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white text-xl font-black py-4 px-12 rounded-xl shadow-lg flex items-center justify-center gap-3 border border-white/20 ${!playerName.trim() ? 'opacity-50 cursor-not-allowed grayscale' : 'hover:brightness-110 transform transition hover:scale-[1.02] active:scale-95'}`}><Play fill="currentColor" /> 開始執勤</button>
+                  <button onClick={startGame} disabled={!playerName.trim()} className={`w-full bg-gradient-r from-blue-600 to-indigo-700 text-white text-xl font-black py-4 px-12 rounded-xl shadow-lg flex items-center justify-center gap-3 border border-white/20 ${!playerName.trim() ? 'opacity-50 cursor-not-allowed grayscale' : 'hover:brightness-110 transform transition hover:scale-[1.02] active:scale-95'}`}><Play fill="currentColor" /> 開始執勤</button>
                 </div>
               </div>
             </div>
@@ -691,18 +721,18 @@
               <div className="col-span-12 md:col-span-3 flex flex-col gap-3 h-auto md:h-full overflow-hidden">
                 <div className="bg-white p-4 rounded-xl shadow-sm border-l-8 border-blue-500 shrink-0 max-h-[300px] md:max-h-[40%] overflow-y-auto">
                   <div className="flex justify-between items-start mb-2"><h2 className="text-base font-bold text-slate-800 flex items-center gap-2"><AlertCircle size={18} className="text-blue-500"/> 任務簡報</h2><button onClick={() => setShowHint(!showHint)} className="flex items-center gap-1 text-[10px] font-bold bg-yellow-50 text-yellow-700 px-2 py-1 rounded hover:bg-yellow-100 transition border border-yellow-200"><Lightbulb size={12} fill={showHint ? "currentColor" : "none"} />{showHint ? "隱藏提示" : "求救"}</button></div>
-                  <p className="text-slate-600 mb-3 text-sm leading-relaxed">{currentLevel.description}</p>
+                  <p className="text-slate-600 mb-3 text-sm leading-relaxed">{getDynamicDescription(currentLevel.description)}</p>
                   {showHint && (<div className="mt-2 bg-yellow-50 p-2 rounded text-xs text-yellow-800 border border-yellow-200 animate-fade-in flex gap-2"><span className="shrink-0 mt-0.5">💡</span><span>{currentLevel.hint}</span></div>)}
                 </div>
                 <div className="bg-slate-100 rounded-xl p-3 overflow-y-auto border border-slate-200 flex-1 min-h-[250px] md:min-h-0 flex flex-col shadow-inner">
                   <h3 className="font-bold text-slate-500 mb-3 flex items-center gap-2 shrink-0 text-sm uppercase tracking-wider"><Layers size={14}/> 指令積木</h3>
-                  <div className="space-y-1.5 flex-1 overflow-y-auto pr-1">{shuffledBlocks.map((block) => (<Block key={block.id} block={block} onClick={() => addToScript(block)} isContainer={isContainerBlock(block.id)} />))}</div>
+                  <div className="space-y-1.5 flex-1 overflow-y-auto pr-1">{shuffledBlocks.map((block) => (<Block key={block.id} block={block} onClick={() => addToScript(block)} isSelected={false} isContainer={isContainerBlock(block.id)} />))}</div>
                    <div className="text-[10px] text-slate-400 text-center mt-2 pt-2 border-t border-slate-200">點擊積木加入編輯區</div>
                 </div>
               </div>
               <div className="col-span-12 md:col-span-5 flex flex-col min-h-[300px] md:h-full overflow-hidden bg-white rounded-xl shadow-sm border border-slate-200 relative">
                   <div className="flex justify-between items-center p-3 border-b border-slate-100 shrink-0 bg-slate-50"><h3 className="font-bold text-slate-700 flex items-center gap-2 text-sm"><ImageIcon size={16} className="text-slate-400"/> 程式編輯區</h3><button onClick={clearScript} className="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 rounded hover:bg-red-50 disabled:opacity-30 disabled:hover:text-red-500 transition-colors" disabled={gameState === 'success'}><RotateCw size={12} className="inline mr-1"/>重置</button></div>
-                  <div className="flex-1 p-4 overflow-y-auto bg-[url('https://www.transparenttextures.com/patterns/graphy.png')] bg-slate-50 min-h-[200px]">
+                  <div className="flex-1 p-4 overflow-y-auto coding-area-bullseye min-h-[200px]">
                      {scriptArea.length === 0 ? (<div className="h-full flex flex-col items-center justify-center text-slate-300"><div className="w-16 h-16 border-4 border-dashed border-slate-200 rounded-lg flex items-center justify-center mb-2"><Move size={32} className="opacity-50" /></div><p className="text-xs font-bold uppercase tracking-wide">Area Empty</p></div>) : (
                        <div className="space-y-0 pb-10">{renderedScript.map((block, index) => (<div key={`${block.id}-${index}`} className="relative group">
                              {isHatBlock(block.id) && index > 0 && isMultiScriptLevel && (
