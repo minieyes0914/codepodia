@@ -264,8 +264,8 @@
         {
           id: 10,
           title: "第十關：志羚姐姐演唱會",
-          description: "案件破獲！全城都在慶祝。請幫志羚姐姐舉辦演唱會：一邊播放主題曲「Try Everything」，一邊讓她變換 10 次舞步造型，喘口氣(等待)後，最後大喊「Zootopia Forever!」。",
-          hint: "跳舞和音樂要分開進行！造型變換使用「重複 10 次」，變換完 10 次後，記得加入一個等待積木讓她休息一下，再喊口號。音樂則在另一個腳本播放。",
+          description: "案件破獲！全城都在慶祝。請幫志羚姐姐舉辦演唱會：一邊播放主題曲「Try Everything」，一邊讓她變換 10 次舞步造型 (每 0.5 秒換一次)，最後大喊「Zootopia Forever!」。",
+          hint: "跳舞和音樂要分開進行！造型變換使用「重複 10 次」，記得在迴圈裡放「等待」積木，不然動作會太快看不見喔！",
           explanation: "為了讓「喊口號」發生在跳舞結束後，我們使用有限次數的迴圈。同時，為了不讓音樂因為動作等待而中斷，音樂必須獨立在另一個平行腳本中執行。",
           concept: ["綜合應用", "平行處理", "有限迴圈"],
           initialScore: 10,
@@ -276,11 +276,10 @@
             { id: 'next_costume', text: '造型換成 下一個', type: 'looks' },
             { id: 'play_music', text: '播放音效「Try Everything」直到結束', type: 'sound' },
             { id: 'wait_05', text: '等待 0.5 秒', type: 'control' },
-            { id: 'wait_1', text: '等待 1 秒', type: 'control' },
             { id: 'say_ya', text: '說出「Zootopia Forever!」持續2秒', type: 'looks' },
             { id: 'turn_15', text: '右轉 15 度', type: 'motion' }
           ],
-          solution: ['flag', 'forever', 'play_music', 'flag', 'repeat_10', 'next_costume', 'wait_05', 'wait_1', 'say_ya']
+          solution: ['flag', 'forever', 'play_music', 'flag', 'repeat_10', 'next_costume', 'wait_05', 'say_ya']
         }
       ];
 
@@ -609,18 +608,10 @@
                            <div className="absolute top-1/2 right-32 -translate-y-14 text-xs text-slate-900 bg-white/90 px-2 py-1 rounded font-mono border border-slate-300">x:200 y:0</div>
                       </>)}
                 </div>)}
-                {currentLevel.id === 7 && (<div className="flex flex-col items-center gap-6 w-full justify-center pr-24"> 
+                {currentLevel.id === 7 && (<div className="flex flex-col items-center gap-6 pr-32"> 
                     <div className="flex gap-8 items-end">
                         <div className="text-7xl relative">🐰{showAnimation && <div className="absolute bottom-0 -right-4 text-3xl animate-pulse">💨</div>}</div>
-                        <div className="text-7xl relative">
-                          🦊
-                          {showAnimation && (
-                            <div className="absolute top-2 left-full ml-4 w-max bg-slate-800 text-green-400 p-2 rounded-lg text-xs font-mono animate-pulse z-50 shadow-lg border border-slate-600">
-                              📡 呼叫支援...
-                              <div className="absolute top-1/2 -left-[6px] -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[6px] border-r-slate-800"></div>
-                            </div>
-                          )}
-                        </div>
+                        <div className="text-7xl relative">🦊{showAnimation && (<div className="absolute top-0 -right-40 w-max bg-slate-800 text-green-400 p-2 rounded-lg text-xs font-mono animate-pulse z-50 shadow-lg border border-slate-600">📡 呼叫支援...<div className="absolute bottom-2 -left-[6px] w-0 h-0 border-t-[6px] border-t-transparent border-r-[6px] border-r-slate-800 border-b-[6px] border-b-transparent"></div></div>)}</div>
                     </div>
                     {showAnimation && <div className="text-sm font-bold text-blue-600 bg-white px-3 py-1 rounded-full shadow">最佳拍檔模式：啟動</div>}
                 </div>)}
@@ -644,14 +635,10 @@
                          </div>
                          <div className={`absolute top-1/2 -right-8 text-4xl z-30 -translate-y-1/2 ${showAnimation ? 'animate-pulse' : ''}`}>🎤</div>
                       </div>
-                      {showAnimation && (<>
-                          <div className="absolute top-6 w-full text-center z-50">
-                              <div className="text-yellow-300 text-2xl md:text-3xl font-black drop-shadow-[0_0_10px_rgba(234,179,8,0.8)] animate-pulse">♫ Try Everything ♫</div>
-                          </div>
-                          <div className="absolute bottom-6 w-full text-center z-50">
-                              <span className="bg-white/90 text-purple-700 text-sm font-bold px-4 py-2 rounded-full inline-block shadow-xl animate-bounce border-2 border-purple-200">Zootopia Forever!</span>
-                          </div>
-                      </>)}
+                      {showAnimation && (<div className="absolute top-10 w-full text-center z-50">
+                              <div className="text-yellow-300 text-3xl font-black drop-shadow-[0_0_10px_rgba(234,179,8,0.8)] animate-pulse">♫ Try Everything ♫</div>
+                              <div className="mt-48"><span className="bg-white/90 text-purple-700 text-sm font-bold px-4 py-2 rounded-full inline-block shadow-xl animate-bounce border-2 border-purple-200">Zootopia Forever!</span></div>
+                         </div>)}
                 </div>)}
               </div>
               {!showAnimation && gameState === 'playing' && (<div className="absolute bottom-2 right-2 text-white/70 text-xs font-mono bg-black/20 px-2 rounded uppercase">Waiting...</div>)}
@@ -760,9 +747,9 @@
                           </div>
                           <div className="mt-auto flex justify-center shrink-0 pb-1">
                             {gameState === 'success' ? (
-                              <button onClick={nextLevel} className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-full font-bold text-sm md:text-base shadow-xl flex items-center gap-2 transition-all hover:scale-105 active:scale-95">
+                              <button onClick={nextLevel} className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2 md:py-3 rounded-full font-black text-base md:text-lg shadow-xl flex items-center gap-3 transition-all hover:scale-105 active:scale-95">
                                 {currentLevelIdx === LEVELS.length - 1 ? "查看成績" : "下一關"} 
-                                {currentLevelIdx === LEVELS.length - 1 ? <Trophy size={16} /> : <ArrowRight size={16} />}
+                                {currentLevelIdx === LEVELS.length - 1 ? <Trophy size={18} /> : <ArrowRight size={18} />}
                               </button>
                             ) : (
                               <button onClick={() => setFeedback("")} className="text-slate-600 text-sm md:text-base font-black hover:text-slate-900 uppercase tracking-widest py-3 px-8 hover:bg-slate-100 rounded-full transition-all border-2 border-slate-200">
